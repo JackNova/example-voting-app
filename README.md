@@ -5,23 +5,41 @@ Example Voting App
 
 To have the possibility to update sources and immediately see changes reflected on the running container it is necessary to share folders on the host machine. This is done using volumes.
 
-**db**
-docker run -d -v db-data:/var/lib/postgresql/data --name db postgres:9.5
 
-**redis**
-docker run -d -p 6379 --name redis redis
-
-**worker**
+**Build Containers***
+```bash
+# worker
 docker build -t example-voting/worker worker/
-docker run -d --name worker -v $(pwd)/worker/src:/code/src --link db:db --link redis:redis example-voting/worker
-
-**voting app**
+# voting app
 docker build -t example-voting/voting voting-app/
-docker run -d --name voting -v $(pwd)/voting-app/:/app -p 5000:80 --link redis:redis example-voting/voting
-
-**result app**
+# result app
 docker build -t example-voting/result result-app/
+```
+
+**Run Containers**
+```bash
+# postgres
+docker run -d -v db-data:/var/lib/postgresql/data --name db postgres:9.5
+# redis
+docker run -d -p 6379 --name redis redis
+# worker
+docker run -d --name worker -v $(pwd)/worker/src:/code/src --link db:db --link redis:redis example-voting/worker
+# voting app
+docker run -d --name voting -v $(pwd)/voting-app/:/app -p 5000:80 --link redis:redis example-voting/voting
+# result app
 docker run -d --name result -v $(pwd)/result-app:/app -p 5001:80 --link db:db example-voting/result
+```
+
+**Restart Containers**
+```bash
+docker start redis db worker voting result
+```
+
+# Deployment
+
+```bash
+docker-compose up -d
+```
 
 # Upstream Documentation
 
